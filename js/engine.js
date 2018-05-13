@@ -46,16 +46,29 @@ var Engine = (function(global) {
          */
         update(dt);
         render();
+        
 
         /* Set our lastTime variable which is used to determine the time delta
          * for the next time this function is called.
          */
         lastTime = now;
 
+        /* Win condition. This will automatically pop up alert box
+         * and automatically reset the game
+         */
+        if(player.y === -25) {
+            setTimeout(function(){
+                alert("You win! Play Again?")
+                init();
+            },0);  
+            return;
+        }
+
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
          */
         win.requestAnimationFrame(main);
+        
     }
 
     /* This function does some initial setup that should only occur once,
@@ -79,7 +92,18 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
+    }
+
+
+    /* This will check for collison. If the collision happens the game will reset
+     */
+    function checkCollisions() {
+        allEnemies.forEach(function(enemy){
+            if(Math.abs(enemy.x-player.x)<50 && Math.abs(enemy.y-player.y)<50){
+                reset();
+            }
+        });
     }
 
     /* This is called by the update function and loops through all of the
@@ -161,7 +185,12 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        // noop
+        allEnemies.forEach(function(enemy){
+            enemy.x = 0;
+            enemy.randomize();
+        })
+
+        player.initialize();
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -182,4 +211,5 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
+    global.canvas = canvas;
 })(this);
